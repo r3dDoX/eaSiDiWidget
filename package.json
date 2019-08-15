@@ -17,14 +17,13 @@
     "babel-loader": "8.0.6",
     "bestzip": "2.1.4",
     "cache-loader": "4.1.0",
-    "core-js": "3.1.4",
     "css-loader": "3.2.0",
+    "file-loader": "4.1.0",
     "make-dir-cli": "2.0.0",
     "move-cli": "1.2.1",
-    "raw-loader": "3.1.0",
     "rimraf": "2.6.3",
     "style-loader": "1.0.0",
-    "webpack": "4.39.2",
+    "webpack": "4.39.1",
     "webpack-cli": "3.3.6"
   },
   "scripts": {

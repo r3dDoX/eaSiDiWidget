@@ -1,48 +1,67 @@
-import htmlTemplate from './index.html';
+import GeoJSONLayer from "esri/layers/GeoJSONLayer";
+import TileLayer from "esri/layers/TileLayer";
+import VectorTileLayer from "esri/layers/VectorTileLayer";
+import EsriMap from "esri/Map";
 
-const arcGisId = 'arcGisFrame';
+const url =
+  "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
 
-export function addArcGisFrame(domNode) {
-  const element = document.createElement('iframe');
-  element.src = 'about:blank';
-  element.id = arcGisId;
-  element.onload = initiateArcGIS;
-  domNode.appendChild(element);
-}
+const template = {
+  title: "Earthquake Info",
+  content: "Magnitude {mag} {type} hit {place} on {time:DateString}"
+};
 
-function initiateArcGIS() {
-  let frameDocument = document.getElementById(arcGisId).contentWindow.document;
-  frameDocument.open();
-  frameDocument.write(htmlTemplate);
-  frameDocument.close();
-}
+const renderer = {
+  type: "simple",
+  field: "mag",
+  symbol: {
+    type: "simple-marker",
+    color: "orange",
+    outline: {
+      color: "white"
+    }
+  },
+  visualVariables: [
+    {
+      type: "size",
+      field: "mag",
+      stops: [
+        {
+          value: 2.5,
+          size: "4px"
+        },
+        {
+          value: 8,
+          size: "40px"
+        }
+      ]
+    }
+  ]
+};
 
+export const layer = new GeoJSONLayer({
+  url,
+  copyright: "USGS Earthquakes",
+  popupTemplate: template,
+  renderer
+});
 
-/**
- * Due to Mendix loading dojo and arcGIS trying to load modules with dojo too we get a config conflict of these two globals
- * arcGIS has a webpack build which is giving errors on the webpack part for compiling wasm currently.
- * see: https://github.com/webpack/webpack/issues/7352
- * For the sake of simplicity and speed the iFrame solution was chosen for this prototype.
- */
-
-/*
-import './config';
-
-import MapView from 'esri/views/MapView';
-import widgetBase from 'widgetBase';
-
-this.domNode = srcNodeRef;
-const element = document.createElement('div');
-element.id = 'viewDiv';
-this.domNode.appendChild(element);
-
-import('./app')
-  .then(({ map }) => {
-    const view = new MapView({
-      container: "viewDiv",
-      map: map,
-      center: [8.492802, 47.390904], // longitude, latitude
-      zoom: 16
-    });
-  });
- */
+export const map = new EsriMap({
+  basemap: {
+    baseLayers: [
+      new TileLayer({
+        portalItem: {
+          // world hillshade
+          id: "1b243539f4514b6ba35e7d995890db1d"
+        }
+      }),
+      new VectorTileLayer({
+        portalItem: {
+          // topographic
+          id: "7dc6cea0b1764a1f9af2e679f642f0f5"
+        }
+      })
+    ]
+  },
+  layers: [layer]
+});

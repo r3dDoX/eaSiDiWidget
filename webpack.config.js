@@ -1,11 +1,13 @@
 'use strict';
 
+const webpack = require('webpack');
 const path = require('path');
 const widget = require('./package.json').name;
 const jsPath = 'src/widget';
 const jsEntry = require('./package.json').entrypoint + '.js';
 const buildPath = 'build/' + widget + '/widget';
 const buildFile = widget + '.js';
+const ArcGISPlugin = require('@arcgis/webpack-plugin');
 
 var config = {
   entry: {
@@ -21,10 +23,6 @@ var config = {
 
   module: {
     rules: [
-      {
-        test: /\.html$/,
-        use: 'raw-loader',
-      },
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
@@ -45,14 +43,33 @@ var config = {
     ],
   },
 
-  externals: {
-    dojoBaseDeclare: 'dojo/_base/declare',
-    widgetBase: 'mxui/widget/_WidgetBase',
-  },
+  externals: [
+    {
+      dojoBaseDeclare: 'dojo/_base/declare',
+      widgetBase: 'mxui/widget/_WidgetBase',
+    },
+    function (context, request, callback) {
+      if (/pe-wasm$/.test(request)) {
+        return callback(null, 'amd ' + request);
+      }
+      callback();
+    },
+  ],
+
+  plugins: [
+    new ArcGISPlugin({
+      useDefaultAssetLoaders: false,
+      features: {
+        '3d': false,
+      },
+      locales: ['de'],
+    }),
+  ],
 
   node: {
     process: false,
     global: false,
+    fs: 'empty',
   },
 };
 
