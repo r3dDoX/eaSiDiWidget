@@ -1,4 +1,5 @@
 import htmlTemplate from './index.html';
+import './index.css';
 
 const arcGisId = 'arcGisFrame';
 
