@@ -1,22 +1,42 @@
-import { trailheadsLabels, trailheadsRenderer } from './styling';
-
 export function initArcGis(dojoRequire) {
   dojoRequire([
+    'esri/config',
+    'esri/Basemap',
     'esri/Map',
+    'esri/geometry/Point',
+    'esri/layers/WMTSLayer',
     'esri/views/MapView',
     'esri/layers/FeatureLayer',
     'esri/layers/GraphicsLayer',
     'esri/widgets/Sketch',
-  ], function (Map, MapView, FeatureLayer, GraphicsLayer, Sketch) {
+  ], function (esriConfig, Basemap, Map, Point, WMTSLayer, MapView, FeatureLayer, GraphicsLayer, Sketch) {
+
+    esriConfig.request.trustedServers.push('geo.sbb.ch');
 
     const graphicsLayer = new GraphicsLayer();
 
+    var wmtsLayer = new WMTSLayer({
+      id: 'landeskarten',
+      url: 'https://geo.sbb.ch/mapproxy/Landeskarten/wmts',
+      activeLayer: {
+        id: 'LK_2056',
+        imageFormat: 'image/jpg',
+        tileMatrixSetId: '2056_27',
+      },
+    });
+
+    const wmtsBasemap = new Basemap({
+      baseLayers: [wmtsLayer],
+      title: 'Landeskarte',
+      id: 'wmtsBasemap',
+    });
+
     const map = new Map({
-      basemap: 'topo-vector',
+      basemap: wmtsBasemap,
       layers: [graphicsLayer],
     });
 
-    const trailsLayer = new FeatureLayer({
+    /*const trailsLayer = new FeatureLayer({
       url: 'https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0',
     });
 
@@ -28,13 +48,24 @@ export function initArcGis(dojoRequire) {
       labelingInfo: [trailheadsLabels],
     });
 
-    map.add(trailHeads);
+    map.add(trailHeads);*/
+
+    const centerPoint = new Point({
+      x: 2681085,
+      y: 1248846,
+      spatialReference: {
+        wkid: 2056,
+      },
+    });
 
     const view = new MapView({
       container: 'viewDiv',
-      map: map,
-      center: [-118.80543, 34.02700], // longitude, latitude
-      zoom: 13,
+      map,
+      spatialReference: {
+        wkid: 2056,
+      },
+      center: centerPoint,
+      scale: 10000,
     });
 
     const sketch = new Sketch({
