@@ -1,3 +1,5 @@
+const SBB_PROD_DOMAIN = 'geo.sbb.ch';
+
 export function initArcGis(dojoRequire) {
   dojoRequire([
     'esri/config',
@@ -11,9 +13,17 @@ export function initArcGis(dojoRequire) {
     'esri/layers/GraphicsLayer',
     'esri/widgets/Sketch',
     'esri/widgets/Editor',
-  ], function (esriConfig, Basemap, Map, Point, WMTSLayer, MapView, MapImageLayer, FeatureLayer, GraphicsLayer, Sketch, Editor) {
+    'esri/widgets/Search',
+  ], function (esriConfig, Basemap, Map, Point, WMTSLayer, MapView, MapImageLayer, FeatureLayer, GraphicsLayer, Sketch, Editor, Search) {
 
-    esriConfig.request.trustedServers.push('geo.sbb.ch');
+    esriConfig.request.trustedServers.push(SBB_PROD_DOMAIN);
+    esriConfig.request.interceptors.push({
+      before: params => {
+        if (params.url.includes(SBB_PROD_DOMAIN)) {
+          params.requestOptions.withCredentials = true;
+        }
+      },
+    });
 
     const graphicsLayer = new GraphicsLayer();
 
@@ -95,6 +105,13 @@ export function initArcGis(dojoRequire) {
 
     map.add(hazardLayer, 0);
 
+    const betriebsPunkLayer = new FeatureLayer({
+      url: 'https://geo.sbb.ch/site/rest/services/DGP_PUBLIC/BS_Streckennetz_1_1_0/FeatureServer/2',
+      outFields: ['*'],
+    });
+
+    map.add(betriebsPunkLayer, 0);
+
     const view = new MapView({
       container: 'viewDiv',
       map,
@@ -112,6 +129,29 @@ export function initArcGis(dojoRequire) {
       });
 
       view.ui.add(editor, 'top-right');
+
+      const searchWidget = new Search({
+        view,
+        sources: [{
+          layer: betriebsPunkLayer,
+          searchFields: ['NAME', 'BEZEICHNUNG'],
+          displayField: 'BEZEICHNUNG',
+          exactMatch: true,
+          outFields: ['*'],
+          name: 'Betriebspunkt',
+          placeholder: 'Beispiel: Altstetten',
+          maxResults: 6,
+          maxSuggestions: 6,
+          suggestionsEnabled: true,
+          minSuggestCharacters: 0,
+        }],
+        includeDefaultSources: false,
+      });
+
+      view.ui.add(searchWidget, {
+        position: 'bottom-left',
+        index: 2,
+      });
     });
   });
 }
