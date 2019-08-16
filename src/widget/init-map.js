@@ -6,16 +6,17 @@ export function initArcGis(dojoRequire) {
     'esri/geometry/Point',
     'esri/layers/WMTSLayer',
     'esri/views/MapView',
+    'esri/layers/MapImageLayer',
     'esri/layers/FeatureLayer',
     'esri/layers/GraphicsLayer',
     'esri/widgets/Sketch',
-  ], function (esriConfig, Basemap, Map, Point, WMTSLayer, MapView, FeatureLayer, GraphicsLayer, Sketch) {
+  ], function (esriConfig, Basemap, Map, Point, WMTSLayer, MapView, MapImageLayer, FeatureLayer, GraphicsLayer, Sketch) {
 
     esriConfig.request.trustedServers.push('geo.sbb.ch');
 
     const graphicsLayer = new GraphicsLayer();
 
-    var wmtsLayer = new WMTSLayer({
+    const landeskartenLayer = new WMTSLayer({
       id: 'landeskarten',
       url: 'https://geo.sbb.ch/mapproxy/Landeskarten/wmts',
       activeLayer: {
@@ -25,14 +26,30 @@ export function initArcGis(dojoRequire) {
       },
     });
 
-    const wmtsBasemap = new Basemap({
-      baseLayers: [wmtsLayer],
+    const landeskartenBasemap = new Basemap({
+      baseLayers: [landeskartenLayer],
       title: 'Landeskarte',
       id: 'wmtsBasemap',
     });
 
+    const luftbilderLayer = new WMTSLayer({
+      id: 'luftbilder',
+      url: 'https://geo.sbb.ch/mapproxy/Luftbilder/wmts',
+      activeLayer: {
+        id: 'SWISSIMAGE_2056',
+        imageFormat: 'image/jpg',
+        tileMatrixSetId: '2056_28',
+      },
+    });
+
+    const luftbilderBasemap = new Basemap({
+      baseLayers: [luftbilderLayer],
+      title: 'Luftbilder',
+      id: 'wmtsBasemap',
+    });
+
     const map = new Map({
-      basemap: wmtsBasemap,
+      basemap: luftbilderBasemap,
       layers: [graphicsLayer],
     });
 
@@ -49,6 +66,12 @@ export function initArcGis(dojoRequire) {
     });
 
     map.add(trailHeads);*/
+
+    const bahnplanLayer = new MapImageLayer({
+      url: 'https://geo.sbb.ch/site/rest/services/DGP_PUBLIC/Bahnplan_schwarz/MapServer',
+    });
+
+    map.add(bahnplanLayer, 0);
 
     const centerPoint = new Point({
       x: 2681085,
