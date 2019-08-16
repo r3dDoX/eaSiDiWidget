@@ -35,7 +35,8 @@
     "build": "webpack --mode production --config ./webpack.widget.config.js && node package.xml.js && npm run zip",
     "postbuild": "npx move-cli widget.mpk build/SiDiMap.mpk",
     "zip": "cd build/ && bestzip ../widget.mpk *",
-    "dev": "webpack-dev-server --config ./webpack.dev.config.js"
+    "dev": "webpack-dev-server --config ./webpack.dev.config.js",
+    "start": "npm run dev"
   },
   "arcgis": {
     "type": "jsapi"
