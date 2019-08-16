@@ -10,7 +10,8 @@ export function initArcGis(dojoRequire) {
     'esri/layers/FeatureLayer',
     'esri/layers/GraphicsLayer',
     'esri/widgets/Sketch',
-  ], function (esriConfig, Basemap, Map, Point, WMTSLayer, MapView, MapImageLayer, FeatureLayer, GraphicsLayer, Sketch) {
+    'esri/widgets/Editor',
+  ], function (esriConfig, Basemap, Map, Point, WMTSLayer, MapView, MapImageLayer, FeatureLayer, GraphicsLayer, Sketch, Editor) {
 
     esriConfig.request.trustedServers.push('geo.sbb.ch');
 
@@ -81,6 +82,19 @@ export function initArcGis(dojoRequire) {
       },
     });
 
+    const hazardPopup = {
+      'title': '{HazardType}',
+      'content': '{Description}',
+    };
+
+    const hazardLayer = new FeatureLayer({
+      url: 'https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/Hazards_Uptown_Charlotte/FeatureServer/0',
+      outFields: ['HazardType', 'Description'],
+      popupTemplate: hazardPopup,
+    });
+
+    map.add(hazardLayer, 0);
+
     const view = new MapView({
       container: 'viewDiv',
       map,
@@ -91,11 +105,13 @@ export function initArcGis(dojoRequire) {
       scale: 10000,
     });
 
-    const sketch = new Sketch({
-      view: view,
-      layer: graphicsLayer,
-    });
+    view.when(() => {
+      const editor = new Editor({
+        layerInfos: [hazardLayer],
+        view,
+      });
 
-    view.ui.add(sketch, 'top-right');
+      view.ui.add(editor, 'top-right');
+    });
   });
 }
