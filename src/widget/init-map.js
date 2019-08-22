@@ -1,4 +1,10 @@
 import { BUTTON_ID } from './app';
+import {
+  getBahnplanLayer,
+  getHazardFeatureLayer,
+  getInvisibleBetriebspunktLayer,
+  getLuftbilderBasemap,
+} from './layers';
 
 const SBB_PROD_DOMAIN = 'geo.sbb.ch';
 
@@ -17,60 +23,21 @@ export function initArcGis(dojoRequire) {
     'esri/widgets/Editor',
     'esri/widgets/Search',
   ], function (esriConfig, Basemap, Map, Point, WMTSLayer, MapView, MapImageLayer, FeatureLayer, GraphicsLayer, Sketch, Editor, Search) {
+    configureHttpInterceptors(esriConfig);
 
-    esriConfig.request.trustedServers.push(SBB_PROD_DOMAIN);
-    esriConfig.request.interceptors.push({
-      before: params => {
-        if (params.url.includes(SBB_PROD_DOMAIN)) {
-          params.requestOptions.withCredentials = true;
-        }
-      },
-    });
-
-    const graphicsLayer = new GraphicsLayer();
-
-    const landeskartenLayer = new WMTSLayer({
-      id: 'landeskarten',
-      url: 'https://geo.sbb.ch/mapproxy/Landeskarten/wmts',
-      activeLayer: {
-        id: 'LK_2056',
-        imageFormat: 'image/jpg',
-        tileMatrixSetId: '2056_27',
-      },
-    });
-
-    const landeskartenBasemap = new Basemap({
-      baseLayers: [landeskartenLayer],
-      title: 'Landeskarte',
-      id: 'wmtsBasemap',
-    });
-
-    const luftbilderLayer = new WMTSLayer({
-      id: 'luftbilder',
-      url: 'https://geo.sbb.ch/mapproxy/Luftbilder/wmts',
-      activeLayer: {
-        id: 'SWISSIMAGE_2056',
-        imageFormat: 'image/jpg',
-        tileMatrixSetId: '2056_28',
-      },
-    });
-
-    const luftbilderBasemap = new Basemap({
-      baseLayers: [luftbilderLayer],
-      title: 'Luftbilder',
-      id: 'wmtsBasemap',
-    });
+    const luftbilderBasemap = getLuftbilderBasemap(WMTSLayer, Basemap);
+    const bahnplanLayer = getBahnplanLayer(MapImageLayer);
 
     const map = new Map({
       basemap: luftbilderBasemap,
-      layers: [graphicsLayer],
+      layers: [bahnplanLayer],
     });
 
-    const bahnplanLayer = new MapImageLayer({
-      url: 'https://geo.sbb.ch/site/rest/services/DGP_PUBLIC/Bahnplan_schwarz/MapServer',
-    });
+    const hazardLayer = getHazardFeatureLayer(FeatureLayer);
+    map.add(hazardLayer, 1);
 
-    map.add(bahnplanLayer, 0);
+    const betriebsPunktLayer = getInvisibleBetriebspunktLayer(FeatureLayer);
+    map.add(betriebsPunktLayer, 0);
 
     const centerPoint = new Point({
       x: 2681085,
@@ -79,27 +46,6 @@ export function initArcGis(dojoRequire) {
         wkid: 2056,
       },
     });
-
-    const hazardPopup = {
-      'title': '{HazardType}',
-      'content': '{Description}',
-    };
-
-    const hazardLayer = new FeatureLayer({
-      url: 'https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/Hazards_Uptown_Charlotte/FeatureServer/0',
-      outFields: ['HazardType', 'Description'],
-      popupTemplate: hazardPopup,
-    });
-
-    map.add(hazardLayer, 0);
-
-    const betriebsPunkLayer = new FeatureLayer({
-      url: 'https://geo.sbb.ch/site/rest/services/DGP_PUBLIC/BS_Streckennetz_1_1_0/FeatureServer/2',
-      outFields: ['*'],
-    });
-
-    map.add(betriebsPunkLayer, 0);
-
     const view = new MapView({
       container: 'viewDiv',
       map,
@@ -121,7 +67,7 @@ export function initArcGis(dojoRequire) {
       const searchWidget = new Search({
         view,
         sources: [{
-          layer: betriebsPunkLayer,
+          layer: betriebsPunktLayer,
           searchFields: ['NAME', 'BEZEICHNUNG'],
           displayField: 'BEZEICHNUNG',
           exactMatch: true,
@@ -146,17 +92,29 @@ export function initArcGis(dojoRequire) {
         view.takeScreenshot({
           format: 'png',
           quality: 70,
-        })
-          .then(screenshot => {
-            const link = document.createElement('a');
-            link.download = 'screenshot.png';
-            link.href = screenshot.dataUrl;
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }),
+        }).then(handleDownload),
       );
     });
   });
+}
+
+function configureHttpInterceptors(esriConfig) {
+  esriConfig.request.trustedServers.push(SBB_PROD_DOMAIN);
+  esriConfig.request.interceptors.push({
+    before: params => {
+      if (params.url.includes(SBB_PROD_DOMAIN)) {
+        params.requestOptions.withCredentials = true;
+      }
+    },
+  });
+}
+
+function handleDownload(screenshot) {
+  const link = document.createElement('a');
+  link.download = 'screenshot.png';
+  link.href = screenshot.dataUrl;
+  link.target = '_blank';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
