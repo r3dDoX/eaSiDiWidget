@@ -1,6 +1,19 @@
 #arcGisFrame {
+    display: block;
     border: none;
-    margin-left: 30px;
     width: 1000px;
     height: 750px;
+}
+
+#save {
+    padding: 10px;
+    border: none;
+    background-color: palevioletred;
+    color: white;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+#arcGisFrame, #save {
+    margin-left: 30px;
 }

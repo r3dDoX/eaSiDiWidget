@@ -1,3 +1,5 @@
+import { BUTTON_ID } from './app';
+
 const SBB_PROD_DOMAIN = 'geo.sbb.ch';
 
 export function initArcGis(dojoRequire) {
@@ -63,20 +65,6 @@ export function initArcGis(dojoRequire) {
       basemap: luftbilderBasemap,
       layers: [graphicsLayer],
     });
-
-    /*const trailsLayer = new FeatureLayer({
-      url: 'https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails/FeatureServer/0',
-    });
-
-    map.add(trailsLayer, 0);
-
-    const trailHeads = new FeatureLayer({
-      url: 'https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads/FeatureServer/0',
-      renderer: trailheadsRenderer,
-      labelingInfo: [trailheadsLabels],
-    });
-
-    map.add(trailHeads);*/
 
     const bahnplanLayer = new MapImageLayer({
       url: 'https://geo.sbb.ch/site/rest/services/DGP_PUBLIC/Bahnplan_schwarz/MapServer',
@@ -152,6 +140,23 @@ export function initArcGis(dojoRequire) {
         position: 'bottom-left',
         index: 2,
       });
+
+      const button = document.getElementById(BUTTON_ID);
+      button.addEventListener('click', () =>
+        view.takeScreenshot({
+          format: 'png',
+          quality: 70,
+        })
+          .then(screenshot => {
+            const link = document.createElement('a');
+            link.download = 'screenshot.png';
+            link.href = screenshot.dataUrl;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }),
+      );
     });
   });
 }
