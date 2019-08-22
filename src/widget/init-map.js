@@ -74,10 +74,10 @@ export function initArcGis(dojoRequire) {
           outFields: ['*'],
           name: 'Betriebspunkt',
           placeholder: 'Beispiel: Altstetten',
-          maxResults: 6,
-          maxSuggestions: 6,
+          maxResults: 10,
+          maxSuggestions: 20,
           suggestionsEnabled: true,
-          minSuggestCharacters: 0,
+          minSuggestCharacters: 2,
         }],
         includeDefaultSources: false,
       });
@@ -90,8 +90,8 @@ export function initArcGis(dojoRequire) {
       const button = document.getElementById(BUTTON_ID);
       button.addEventListener('click', () =>
         view.takeScreenshot({
-          format: 'png',
-          quality: 70,
+          format: 'jpg',
+          quality: 80,
         }).then(handleDownload),
       );
     });
@@ -111,7 +111,7 @@ function configureHttpInterceptors(esriConfig) {
 
 function handleDownload(screenshot) {
   const link = document.createElement('a');
-  link.download = 'screenshot.png';
+  link.download = 'screenshot.jpg';
   link.href = screenshot.dataUrl;
   link.target = '_blank';
   document.body.appendChild(link);
