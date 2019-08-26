@@ -5,8 +5,10 @@ import { addArcGisFrame } from './app';
 
 declare(packageConfig.name + '.widget.' + packageConfig.name, [widgetBase], {
 
+  targetQuery: null,
+
   constructor: function (params, srcNodeRef) {
-    addArcGisFrame(srcNodeRef);
+    addArcGisFrame(srcNodeRef, document.querySelector(this.targetQuery));
   },
 
   update: function (obj, cb) {

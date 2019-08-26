@@ -8,7 +8,7 @@ import {
 
 const SBB_PROD_DOMAIN = 'geo.sbb.ch';
 
-export function initArcGis(dojoRequire) {
+export function initArcGis(dojoRequire, selectNode) {
   dojoRequire([
     'esri/config',
     'esri/Basemap',
@@ -54,6 +54,15 @@ export function initArcGis(dojoRequire) {
       },
       center: centerPoint,
       scale: 10000,
+    });
+
+    selectNode.addEventListener('change', (event) => {
+      view.whenLayerView(hazardLayer)
+        .then(featureLayerView => {
+          featureLayerView.filter = {
+            where: event.target.value,
+          };
+        });
     });
 
     view.when(() => {

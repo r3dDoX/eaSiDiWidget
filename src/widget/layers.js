@@ -48,7 +48,7 @@ export function getHazardFeatureLayer(FeatureLayer) {
 
   return new FeatureLayer({
     url: 'https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/Hazards_Uptown_Charlotte/FeatureServer/0',
-    outFields: ['HazardType', 'Description'],
+    outFields: ['HazardType', 'Description', 'Priority'],
     popupTemplate: hazardPopup,
   });
 }

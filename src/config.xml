@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <widget id="SidiMap.widget.SidiMap" needsEntityContext="false" xmlns="http://www.mendix.com/widget/1.0/">
     <name>SiDiMap</name>
-    <description>CustomReactWidget for Mendix</description>
+    <description>SiDi Map Widget</description>
 
     <icon />
 
     <properties>
-        <property key="dummyKey" type="string" required="false" defaultValue="">
-            <caption>Dummy key</caption>
-            <category>Appearance</category>
-            <description>This key was added to make the widget work in the Modeler (needs atleast 1 key). Please change/remove this one</description>
+        <property key="targetQuery" type="string" required="true">
+            <caption>SiDi Selector DOM Query</caption>
+            <category>General</category>
+            <description>CSS Selector to find the SiDi Select Box</description>
         </property>
     </properties>
 </widget>
