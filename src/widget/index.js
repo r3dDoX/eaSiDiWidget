@@ -7,11 +7,14 @@ declare(packageConfig.name + '.widget.' + packageConfig.name, [widgetBase], {
 
   targetQuery: null,
 
+  _srcNodeRef: null,
+
   constructor: function (params, srcNodeRef) {
-    addArcGisFrame(srcNodeRef, document.querySelector(this.targetQuery));
+    this._srcNodeRef = srcNodeRef;
   },
 
   update: function (obj, cb) {
+    addArcGisFrame(this._srcNodeRef, document.querySelector(this.targetQuery + ' select'));
     cb();
   },
 

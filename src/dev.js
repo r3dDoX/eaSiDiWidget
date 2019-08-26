@@ -6,7 +6,7 @@ select.id = 'sidiSelect';
 priorities.forEach(priority => {
   const option = document.createElement('option');
   option.text = priority;
-  option.value = `Priority = '${priority}'`;
+  option.value = priority;
   select.appendChild(option);
 });
 document.body.appendChild(select);

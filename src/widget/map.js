@@ -57,10 +57,11 @@ export function initArcGis(dojoRequire, selectNode) {
     });
 
     selectNode.addEventListener('change', (event) => {
+      const priority = event.target.value;
       view.whenLayerView(hazardLayer)
         .then(featureLayerView => {
           featureLayerView.filter = {
-            where: event.target.value,
+            where: priority ? `Priority = '${priority}'` : '',
           };
         });
     });
