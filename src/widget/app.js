@@ -1,6 +1,6 @@
 import './index.css';
 import htmlTemplate from './index.html';
-import { initArcGis } from './init-map';
+import { initArcGis } from './map';
 
 export const ARCGIS_FRAME = 'arcGisFrame';
 export const BUTTON_ID = 'save';
