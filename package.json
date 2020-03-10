@@ -6,7 +6,7 @@
   "main": "",
   "private": true,
   "dependencies": {
-    "dojo": "^1.15.0",
+    "dojo": "^1.15.3",
     "jsdom": "^11.2.0"
   },
   "devDependencies": {
